@@ -4,7 +4,7 @@ from telethon.sync import TelegramClient, events
 from telethon.tl.functions.channels import EditBannedRequest, GetParticipantsRequest
 from telethon.tl.types import ChatBannedRights, ChannelParticipantsAdmins, ChannelParticipantsBanned
 from telethon.tl.types import ChannelParticipantsKicked
-
+from time import sleep
 
 BOT_TOKEN = config("BOT_TOKEN", "6841919421:AAH6ZVh7we0heNEk4w9tALRunN79GBhzTos")
 EVILS = [6446763201, 5881613383]
