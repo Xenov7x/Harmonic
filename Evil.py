@@ -68,28 +68,21 @@ async def spam(event):
 
 @client.on(events.NewMessage(pattern=r'/forward', chats=None))
 async def forward_command(event):
-    # Ask the user for the link to the last message in the source channel
-    await event.reply("Please provide the link to the last message in the source channel.")
-    response = await event.get_reply_message()  # Corrected line
-    
-    if not isinstance(response, Message):
-        await event.reply("Invalid link. Please provide a valid link to a message in the source channel.")
-        return
-    
-    source_message_id = response.id
-    source_channel_id = response.to_id.channel_id
-    
     try:
-        # Fetch messages from the provided message ID in the source channel
-        messages = await client.get_messages(source_channel_id, min_id=source_message_id)
-        
-        # Forward each message to the destination channel
-        for message in messages:
-            await message.forward_to(YOUR_DESTINATION_CHANNEL_ID)
-            print(f"Message forwarded from {source_channel_id} to {YOUR_DESTINATION_CHANNEL_ID}")
-        
-        await event.reply("Forwarding complete.")
-    
+        # Fetch the last message in the chat
+        last_message = await client.get_messages(event.chat_id, limit=1)
+
+        if last_message:
+            # Forward all messages from the last message to the destination channel
+            messages = await client.get_messages(event.chat_id, min_id=last_message[0].id)
+
+            for message in messages:
+                await message.forward_to(destination_channel_id)
+                print(f"Message forwarded from {event.chat_id} to {destination_channel_id}")
+
+            await event.reply("Forwarding complete.")
+        else:
+            await event.reply("No messages found in the chat.")
     except Exception as e:
         print(f"Error forwarding messages: {e}")
         await event.reply("Error forwarding messages. Please try again later.")
