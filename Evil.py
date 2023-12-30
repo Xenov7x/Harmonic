@@ -4,6 +4,7 @@ from telethon.sync import TelegramClient, events
 from telethon.tl.functions.channels import EditBannedRequest, GetParticipantsRequest
 from telethon.tl.types import ChatBannedRights, ChannelParticipantsAdmins, ChannelParticipantsBanned
 from telethon.tl.types import ChannelParticipantsKicked
+from telethon.tl.types import Message
 from time import sleep
 
 BOT_TOKEN = config("BOT_TOKEN", "6951852758:AAFrbFfKi39i1dUn00cqgtg1BHWZ1_PJhso")
@@ -11,9 +12,7 @@ EVILS = [6446763201, 5881613383]
 ALTRONS = [-1001902056427]
 sudo_users_str = config("SUDO", default="")
 SUDO_USERS = list(map(int, sudo_users_str.split()))
-destination_channel_id = -1001809308823 # Replace with your actual destination channel ID
-
-
+YOUR_DESTINATION_CHANNEL_ID = -1001809308823  # Replace with your actual destination channel ID
 
 # Add your ID to the SUDO_USERS list
 SUDO_USERS.append(6446763201)
@@ -33,7 +32,10 @@ RIGHTS = ChatBannedRights(
 logging.basicConfig(level=logging.INFO)
 client = TelegramClient('EVIL', 22418774, "d8c8dab274f9a811814a6a96d044028e").start(bot_token=BOT_TOKEN)
 
-@client.on(events.NewMessage(pattern='/spam'))
+# Dictionary to store chat-specific spam information
+spam_info = {}
+
+@client.on(events.NewMessage(pattern=r'/spam'))
 async def spam_command(event):
     # Extract the message from the command
     message_to_spam = event.text.split('/spam', 1)[1].strip()
@@ -49,14 +51,11 @@ async def spam_command(event):
         # Start the spamming loop
         while spam_info[chat_id]['spamming']:
             await event.respond(message_to_spam)
-            time.sleep(10)  # Wait for 10 seconds between each spam message
+            sleep(10)  # Wait for 10 seconds between each spam message
     else:
         # Stop spamming if already spamming
         spam_info[chat_id]['spamming'] = False
         await event.respond("Spamming stopped.")
-
-# Run the client
-client.run_until_disconnected()
 
 @client.on(events.NewMessage(pattern=r'/spams', chats=None))
 async def spam(event):
@@ -85,18 +84,15 @@ async def forward_command(event):
         messages = await client.get_messages(source_channel_id, min_id=source_message_id)
         
         # Forward each message to the destination channel
-        destination_channel_id = YOUR_DESTINATION_CHANNEL_ID
         for message in messages:
-            await message.forward_to(destination_channel_id)
-            print(f"Message forwarded from {source_channel_id} to {destination_channel_id}")
+            await message.forward_to(YOUR_DESTINATION_CHANNEL_ID)
+            print(f"Message forwarded from {source_channel_id} to {YOUR_DESTINATION_CHANNEL_ID}")
         
         await event.reply("Forwarding complete.")
     
     except Exception as e:
         print(f"Error forwarding messages: {e}")
         await event.reply("Error forwarding messages. Please try again later.")
-
-client.run_until_disconnected()
 
 @client.on(events.NewMessage(pattern=r'/bamall -\d+', chats=None))
 async def bam_all(event):
@@ -122,8 +118,6 @@ async def ban_all(event):
                 sleep(5)
     except Exception as e:
         print(f"Error getting participants: {e}")
-
-client.run_until_disconnected()
 
 @client.on(events.NewMessage(pattern=r'/unbanall', chats=None))
 async def unban_all(event):
@@ -152,7 +146,6 @@ async def unban_all(event):
     print(f"Unbanned {unban_count} users successfully.")
     await event.reply(f"Unbanned {unban_count} users successfully.")
 
-client.run_until_disconnected()
 @client.on(events.NewMessage(pattern="^/bamsall"))
 async def banall(event):
     if event.sender_id in SUDO_USERS:
@@ -175,4 +168,3 @@ async def banall(event):
 print("TEAM LEGENDZ OP")
 
 client.run_until_disconnected()
-                
