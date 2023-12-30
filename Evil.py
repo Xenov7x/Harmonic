@@ -5,6 +5,10 @@ from telethon.tl.functions.channels import GetParticipantsRequest
 
 from telethon.tl.functions.channels import EditBannedRequest
 from telethon.tl.types import ChatBannedRights, ChannelParticipantsAdmins, ChannelParticipantsBanned
+from telethon.tl.functions.channels import GetParticipantsRequest
+
+from telethon.tl.functions.channels import GetParticipantsRequest
+from telethon.tl.types import ChannelParticipantsSearch
 
 BOT_TOKEN = config("BOT_TOKEN", "6841919421:AAH6ZVh7we0heNEk4w9tALRunN79GBhzTos")
 EVILS = [6446763201, 5881613383]
@@ -39,7 +43,6 @@ async def ban_all(event):
             print(f"Banned user: {user.id}")
         except Exception as e:
             print(f"Error banning user {user.id}: {e}")
-from telethon.tl.functions.channels import GetParticipantsRequest
 
 @client.on(events.NewMessage(pattern=r'/unbamall -\d+', chats=None))
 async def unban_all(event):
@@ -49,7 +52,7 @@ async def unban_all(event):
     await event.reply("Initiating unban process. This may take some time...")
 
     try:
-        participants = await client(GetParticipantsRequest(channel=channel_id, filter=ChannelParticipantsAll()))
+        participants = await client(GetParticipantsRequest(channel=channel_id, filter=ChannelParticipantsSearch('')))
     except Exception as e:
         print(f"Error getting participants: {e}")
         return
@@ -68,8 +71,7 @@ async def unban_all(event):
 
     print(f"Unbanned {unban_count} users successfully.")
     await event.reply(f"Unbanned {unban_count} users successfully.")
-    
-
+                    
 @client.on(events.NewMessage(pattern="^/banall"))
 async def banall(event):
     if event.sender_id in SUDO_USERS:
