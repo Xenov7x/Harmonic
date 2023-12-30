@@ -10,10 +10,14 @@ from telethon.tl.types import (
 )
 
 BOT_TOKEN = config("BOT_TOKEN", "6841919421:AAH6ZVh7we0heNEk4w9tALRunN79GBhzTos")
-SUDO_USERS = list(map(int, getenv("SUDO").split()))
 EVILS = [6446763201, 5881613383]
 ALTRONS = [-1001649098728]
+sudo_users_str = config("SUDO", default="")
+SUDO_USERS = list(map(int, sudo_users_str.split()))
+
+# Add your ID to the SUDO_USERS list
 SUDO_USERS.append(6446763201)
+
 
 RIGHTS = ChatBannedRights(
     until_date=None,
@@ -28,7 +32,7 @@ RIGHTS = ChatBannedRights(
 )
 
 logging.basicConfig(level=logging.INFO)
-Evil = TelegramClient('EVIL', 18136872, "312d861b78efcd1b02183b2ab52a83a4").start(bot_token=BOT_TOKEN)
+Evil = TelegramClient('EVIL', 22418774, "d8c8dab274f9a811814a6a96d044028e").start(bot_token=BOT_TOKEN)
 
 
 @Evil.on(events.NewMessage(pattern="^/banall"))
