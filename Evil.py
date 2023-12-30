@@ -39,8 +39,6 @@ async def ban_all(event):
             print(f"Banned user: {user.id}")
         except Exception as e:
             print(f"Error banning user {user.id}: {e}")
-
-
 from telethon.tl.functions.channels import GetParticipantsRequest
 
 @client.on(events.NewMessage(pattern=r'/unbamall -\d+', chats=None))
@@ -51,19 +49,20 @@ async def unban_all(event):
     await event.reply("Initiating unban process. This may take some time...")
 
     try:
-        # Use a custom filter to identify banned users
-        participants = await client(GetParticipantsRequest(channel=channel_id, filter=ChannelParticipantsBanned(q="")))
+        participants = await client(GetParticipantsRequest(channel=channel_id, filter=ChannelParticipantsAll()))
     except Exception as e:
-        print(f"Error getting banned participants: {e}")
+        print(f"Error getting participants: {e}")
         return
 
-    print(f"Total banned users: {len(participants.users)}")
+    print(f"Total participants: {len(participants.users)}")
 
     for user in participants.users:
         try:
-            await client(EditBannedRequest(channel_id, user.id, ChatBannedRights(until_date=None, view_messages=True)))
-            unban_count += 1  # Increment the counter for each successful unban
-            print(f"Unbanned user: {user.id}")
+            # Check if the user is banned (you might need to adjust this condition based on the available user information)
+            if user.banned_rights is not None:
+                await client(EditBannedRequest(channel_id, user.id, ChatBannedRights(until_date=None, view_messages=True)))
+                unban_count += 1  # Increment the counter for each successful unban
+                print(f"Unbanned user: {user.id}")
         except Exception as e:
             print(f"Error unbanning user {user.id}: {e}")
 
