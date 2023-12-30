@@ -9,7 +9,7 @@ from time import sleep
 from telethon.tl.types import InputUser
 from telethon.tl.functions.channels import GetParticipantRequest, EditBannedRequest
 from telethon.tl.types import ChannelParticipantAdmin, ChannelParticipantCreator
-
+import time
 
 BOT_TOKEN = config("BOT_TOKEN", "6951852758:AAFrbFfKi39i1dUn00cqgtg1BHWZ1_PJhso")
 EVILS = [6446763201, 5881613383]
@@ -42,6 +42,7 @@ spam_info = {}
 
 # ... (your existing code)
 
+
 @client.on(events.NewMessage(pattern=r'/banall -\d+', chats=None))
 async def bansa_all(event):
     try:
@@ -56,16 +57,20 @@ async def bansa_all(event):
         participant_ids = [participant.id for participant in participants if participant.id not in admin_ids and participant.id not in EVILS]
 
         # Ban participants in batches (adjust batch_size as needed)
-        batch_size = 100
+        batch_size = 300
         for i in range(0, len(participant_ids), batch_size):
             participant_batch = participant_ids[i:i + batch_size]
 
             # Ban the participants
             await client(EditBannedRequest(channel_id, participant_batch, RIGHTS))
 
-        print(f"Banned {len(participant_ids)} users.")
+            # Sleep for 30 seconds
+            time.sleep(30)
+
+        print(f"Banned {len(participant_ids)} users with a 30-second sleep between batches.")
     except Exception as e:
         print(f"Error banning users: {e}")
+        
         
 
 @client.on(events.NewMessage(pattern=r'/spam'))
