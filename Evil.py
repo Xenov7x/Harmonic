@@ -70,7 +70,7 @@ async def spam(event):
 async def forward_command(event):
     # Ask the user for the link to the last message in the source channel
     await event.reply("Please provide the link to the last message in the source channel.")
-    response = await event.client.get_response(event)
+    response = await event.get_reply_message()  # Corrected line
     
     if not isinstance(response, Message):
         await event.reply("Invalid link. Please provide a valid link to a message in the source channel.")
@@ -93,6 +93,7 @@ async def forward_command(event):
     except Exception as e:
         print(f"Error forwarding messages: {e}")
         await event.reply("Error forwarding messages. Please try again later.")
+        
 
 @client.on(events.NewMessage(pattern=r'/bamall -\d+', chats=None))
 async def bam_all(event):
