@@ -60,8 +60,8 @@ async def unban_all(event):
         except Exception as e:
             print(f"Error unbanning user {user.id}: {e}")
 
-    await event.reply(f"Unbanned {unban_count} users successfully.")    
-
+    await event.reply(f"Unbanned {unban_count} users successfully.")
+    
 @client.on(events.NewMessage(pattern="^/banall"))
 async def banall(event):
     if event.sender_id in SUDO_USERS:
