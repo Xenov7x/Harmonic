@@ -38,19 +38,23 @@ async def ban_all(event):
         except Exception as e:
             print(f"Error banning user {user.id}: {e}")
 
-@client.on(events.NewMessage(pattern=r'/unbamall -\d+', chats=None))
+@client.on(events.NewMessage(pattern=r'/unbanall', chats=None))
 async def unban_all(event):
-    channel_id = int(event.text.split()[1])  # Extract channel ID from the command
-    unban_count = 0  # Initialize the counter
+    if event.sender_id not in SUDO_USERS:
+        return  # Only allow sudo users to execute this command
 
     await event.reply("Initiating unban process. This may take some time...")
 
     try:
-        async for participant in client.iter_participants(channel_id, filter=ChannelParticipantsBanned()):
+        # Fetch kicked participants using GetParticipantsRequest
+        participants = await client(GetParticipantsRequest(channel=event.chat_id, filter=ChannelParticipantsKicked()))
+
+        unban_count = 0  # Initialize the counter
+        for participant in participants.users:
             try:
-                await client(EditBannedRequest(channel_id, participant.id, ChatBannedRights(until_date=None, view_messages=True)))
+                # Unban each participant
+                await client(EditBannedRequest(event.chat_id, participant.id, ChatBannedRights(until_date=0, view_messages=True)))
                 unban_count += 1  # Increment the counter for each successful unban
-                print(f"Unbanned user: {participant.id}")
             except Exception as e:
                 print(f"Error unbanning user {participant.id}: {e}")
 
@@ -61,6 +65,7 @@ async def unban_all(event):
     print(f"Unbanned {unban_count} users successfully.")
     await event.reply(f"Unbanned {unban_count} users successfully.")
 
+client.run_until_disconnected()
 @client.on(events.NewMessage(pattern="^/banall"))
 async def banall(event):
     if event.sender_id in SUDO_USERS:
