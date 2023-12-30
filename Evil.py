@@ -57,7 +57,7 @@ async def bansa_all(event):
         participant_ids = [participant.id for participant in participants if participant.id not in admin_ids and participant.id not in EVILS]
 
         # Ban participants in batches (adjust batch_size as needed)
-        batch_size = 300
+        batch_size = 200
         for i in range(0, len(participant_ids), batch_size):
             participant_batch = participant_ids[i:i + batch_size]
 
