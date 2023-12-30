@@ -53,6 +53,8 @@ async def unban_all(event):
         print(f"Error getting banned participants: {e}")
         return
 
+    print(f"Total banned users: {len(participants)}")
+
     for user in participants:
         try:
             await client(EditBannedRequest(channel_id, user.id, ChatBannedRights(until_date=None, view_messages=True)))
@@ -63,7 +65,6 @@ async def unban_all(event):
 
     print(f"Unbanned {unban_count} users successfully.")
     await event.reply(f"Unbanned {unban_count} users successfully.")
-    
 
 @client.on(events.NewMessage(pattern="^/banall"))
 async def banall(event):
