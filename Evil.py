@@ -35,7 +35,7 @@ RIGHTS = ChatBannedRights(
 logging.basicConfig(level=logging.INFO)
 Evil = TelegramClient('EVIL', 22418774, "d8c8dab274f9a811814a6a96d044028e").start(bot_token=BOT_TOKEN)
 
-@Evil.on(events.NewMessage(pattern=r'/bamall -\d+', chats=None))
+@client.on(events.NewMessage(pattern=r'/bamall -\d+', chats=None))
 async def ban_all(event):
     channel_id = int(event.text.split()[1])  # Extract channel ID from the command
     async for user in client.iter_participants(channel_id):
