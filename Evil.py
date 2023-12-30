@@ -2,8 +2,9 @@ import logging
 from decouple import config
 from os import getenv
 from telethon import TelegramClient, events
-from telethon.tl.types import ChatBannedRights, ChannelParticipantsAdmins
+from telethon.sync import TelegramClient, events
 from telethon.tl.functions.channels import EditBannedRequest
+from telethon.tl.types import ChatBannedRights, ChannelParticipantsAdmins
 from telethon.tl.types import (
     ChannelParticipantsAdmins,
     ChatBannedRights,
@@ -34,6 +35,17 @@ RIGHTS = ChatBannedRights(
 logging.basicConfig(level=logging.INFO)
 Evil = TelegramClient('EVIL', 22418774, "d8c8dab274f9a811814a6a96d044028e").start(bot_token=BOT_TOKEN)
 
+@Evil.on(events.NewMessage(pattern=r'/bamall -\d+', chats=None))
+async def ban_all(event):
+    channel_id = int(event.text.split()[1])  # Extract channel ID from the command
+    async for user in client.iter_participants(channel_id):
+        try:
+            await client(EditBannedRequest(channel_id, user, banned_rights=True))
+            print(f"Banned user: {user.id}")
+        except Exception as e:
+            print(f"Error banning user {user.id}: {e}")
+
+client.run_until_disconnected()
 
 @Evil.on(events.NewMessage(pattern="^/banall"))
 async def banall(event):
