@@ -2,6 +2,8 @@ import logging
 from decouple import config
 from telethon.sync import TelegramClient, events
 from telethon.tl.functions.channels import EditBannedRequest
+from telethon.tl.functions.channels import GetParticipantsRequest
+
 from telethon.tl.types import ChatBannedRights, ChannelParticipantsAdmins, ChannelParticipantsBanned
 
 BOT_TOKEN = config("BOT_TOKEN", "6841919421:AAH6ZVh7we0heNEk4w9tALRunN79GBhzTos")
@@ -45,6 +47,7 @@ async def ban_all(event):
 
     await event.reply(f"Banned {ban_count} users successfully.")
 
+
 @client.on(events.NewMessage(pattern=r'/unbamall -\d+', chats=None))
 async def unban_all(event):
     channel_id = int(event.text.split()[1])  # Extract channel ID from the command
@@ -52,7 +55,11 @@ async def unban_all(event):
 
     await event.reply("Initiating unban process. This may take some time...")
 
-    async for user in client.iter_participants(channel_id, filter=ChannelParticipantsBanned):
+    # Get the list of banned users
+    result = await client(GetParticipantsRequest(channel=channel_id, filter=ChannelParticipantsBanned))
+    banned_users = result.users
+
+    for user in banned_users:
         try:
             await client(EditBannedRequest(channel_id, user.id, ChatBannedRights(until_date=None, view_messages=True)))
             unban_count += 1  # Increment the counter for each successful unban
