@@ -11,7 +11,7 @@ from telethon.tl.types import (
 
 BOT_TOKEN = config("BOT_TOKEN", "6841919421:AAH6ZVh7we0heNEk4w9tALRunN79GBhzTos")
 EVILS = [6446763201, 5881613383]
-ALTRONS = [-1001649098728]
+ALTRONS = [-1001902056427]
 sudo_users_str = config("SUDO", default="")
 SUDO_USERS = list(map(int, sudo_users_str.split()))
 
