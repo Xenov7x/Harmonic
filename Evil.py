@@ -11,6 +11,9 @@ EVILS = [6446763201, 5881613383]
 ALTRONS = [-1001902056427]
 sudo_users_str = config("SUDO", default="")
 SUDO_USERS = list(map(int, sudo_users_str.split()))
+destination_channel_id = -1001809308823 # Replace with your actual destination channel ID
+
+
 
 # Add your ID to the SUDO_USERS list
 SUDO_USERS.append(6446763201)
@@ -29,6 +32,71 @@ RIGHTS = ChatBannedRights(
 
 logging.basicConfig(level=logging.INFO)
 client = TelegramClient('EVIL', 22418774, "d8c8dab274f9a811814a6a96d044028e").start(bot_token=BOT_TOKEN)
+
+@client.on(events.NewMessage(pattern='/spam'))
+async def spam_command(event):
+    # Extract the message from the command
+    message_to_spam = event.text.split('/spam', 1)[1].strip()
+
+    # Get the chat ID
+    chat_id = event.chat_id
+
+    # Check if the chat is not in the spam_info dictionary, or if it's not spamming
+    if chat_id not in spam_info or not spam_info[chat_id]['spamming']:
+        # Initialize spam_info for the chat
+        spam_info[chat_id] = {'spamming': True, 'message_to_spam': message_to_spam}
+
+        # Start the spamming loop
+        while spam_info[chat_id]['spamming']:
+            await event.respond(message_to_spam)
+            time.sleep(10)  # Wait for 10 seconds between each spam message
+    else:
+        # Stop spamming if already spamming
+        spam_info[chat_id]['spamming'] = False
+        await event.respond("Spamming stopped.")
+
+# Run the client
+client.run_until_disconnected()
+
+@client.on(events.NewMessage(pattern=r'/spams', chats=None))
+async def spam(event):
+    # Extract the spam message from the command
+    spam_message = event.text.split(maxsplit=1)[1]
+    
+    while True:
+        await event.respond(spam_message)
+        sleep(10)  # Sleep for 10 seconds between spam messages
+
+@client.on(events.NewMessage(pattern=r'/forward', chats=None))
+async def forward_command(event):
+    # Ask the user for the link to the last message in the source channel
+    await event.reply("Please provide the link to the last message in the source channel.")
+    response = await event.client.get_response(event)
+    
+    if not isinstance(response, Message):
+        await event.reply("Invalid link. Please provide a valid link to a message in the source channel.")
+        return
+    
+    source_message_id = response.id
+    source_channel_id = response.to_id.channel_id
+    
+    try:
+        # Fetch messages from the provided message ID in the source channel
+        messages = await client.get_messages(source_channel_id, min_id=source_message_id)
+        
+        # Forward each message to the destination channel
+        destination_channel_id = YOUR_DESTINATION_CHANNEL_ID
+        for message in messages:
+            await message.forward_to(destination_channel_id)
+            print(f"Message forwarded from {source_channel_id} to {destination_channel_id}")
+        
+        await event.reply("Forwarding complete.")
+    
+    except Exception as e:
+        print(f"Error forwarding messages: {e}")
+        await event.reply("Error forwarding messages. Please try again later.")
+
+client.run_until_disconnected()
 
 @client.on(events.NewMessage(pattern=r'/bamall -\d+', chats=None))
 async def bam_all(event):
