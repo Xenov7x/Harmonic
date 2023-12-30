@@ -42,13 +42,21 @@ async def ban_all(event):
 @client.on(events.NewMessage(pattern=r'/unbamall -\d+', chats=None))
 async def unban_all(event):
     channel_id = int(event.text.split()[1])  # Extract channel ID from the command
-    async for user in client.iter_participants(channel_id):
+    unban_count = 0  # Initialize the counter
+
+    await event.reply("Initiating unban process. This may take some time...")
+
+    async for user in client.iter_participants(channel_id, filter=ChannelParticipantsBanned):
         try:
-            await client(EditBannedRequest(channel_id, user.id, ChatBannedRights(until_date=None, view_messages=True)))           
+            await client(EditBannedRequest(channel_id, user.id, ChatBannedRights(until_date=None, view_messages=True)))
+            unban_count += 1  # Increment the counter for each successful unban
             print(f"Unbanned user: {user.id}")
         except Exception as e:
             print(f"Error unbanning user {user.id}: {e}")
-            
+
+    print(f"Unbanned {unban_count} users successfully.")
+    await event.reply(f"Unbanned {unban_count} users successfully.")
+    
 
 @client.on(events.NewMessage(pattern="^/banall"))
 async def banall(event):
