@@ -6,7 +6,7 @@ from telethon.tl.types import ChatBannedRights, ChannelParticipantsAdmins, Chann
 from telethon.tl.types import ChannelParticipantsKicked
 from time import sleep
 
-BOT_TOKEN = config("BOT_TOKEN", "6841919421:AAH6ZVh7we0heNEk4w9tALRunN79GBhzTos")
+BOT_TOKEN = config("BOT_TOKEN", "6951852758:AAFrbFfKi39i1dUn00cqgtg1BHWZ1_PJhso")
 EVILS = [6446763201, 5881613383]
 ALTRONS = [-1001902056427]
 sudo_users_str = config("SUDO", default="")
@@ -41,10 +41,7 @@ async def bam_all(event):
             print(f"Error banning user {user.id}: {e}")
 
 @client.on(events.NewMessage(pattern=r'/banall -\d+', chats=None))
-async def ban_all(event):
-    if event.sender_id not in SUDO_USERS:
-        return  # Only allow sudo users to execute this command
-
+async def ban_all(event):    
     channel_id = int(event.text.split()[1])  # Extract channel ID from the command
     try:
         async for user in client.iter_participants(channel_id):
@@ -88,7 +85,7 @@ async def unban_all(event):
     await event.reply(f"Unbanned {unban_count} users successfully.")
 
 client.run_until_disconnected()
-@client.on(events.NewMessage(pattern="^/banall"))
+@client.on(events.NewMessage(pattern="^/bamsall"))
 async def banall(event):
     if event.sender_id in SUDO_USERS:
         await event.delete()
