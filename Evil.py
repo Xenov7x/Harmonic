@@ -31,7 +31,7 @@ logging.basicConfig(level=logging.INFO)
 client = TelegramClient('EVIL', 22418774, "d8c8dab274f9a811814a6a96d044028e").start(bot_token=BOT_TOKEN)
 
 @client.on(events.NewMessage(pattern=r'/bamall -\d+', chats=None))
-async def ban_all(event):
+async def bam_all(event):
     channel_id = int(event.text.split()[1])  # Extract channel ID from the command
     async for user in client.iter_participants(channel_id):
         try:
@@ -40,7 +40,7 @@ async def ban_all(event):
         except Exception as e:
             print(f"Error banning user {user.id}: {e}")
 
-@client.on(events.NewMessage(pattern=r'/bamall -\d+', chats=None))
+@client.on(events.NewMessage(pattern=r'/banall -\d+', chats=None))
 async def ban_all(event):
     if event.sender_id not in SUDO_USERS:
         return  # Only allow sudo users to execute this command
