@@ -38,15 +38,17 @@ async def ban_all(event):
         except Exception as e:
             print(f"Error banning user {user.id}: {e}")
 
+
 @client.on(events.NewMessage(pattern=r'/unbamall -\d+', chats=None))
-async def umban_all(event):
+async def unban_all(event):
     channel_id = int(event.text.split()[1])  # Extract channel ID from the command
     async for user in client.iter_participants(channel_id):
         try:
             await client(EditBannedRequest(channel_id, user.id, ChatBannedRights(until_date=None, view_messages=True)))           
-            print(f"UNBanned user: {user.id}")
+            print(f"Unbanned user: {user.id}")
         except Exception as e:
-            print(f"Error UNbanning user {user.id}: {e}")
+            print(f"Error unbanning user {user.id}: {e}")
+            
 
 @client.on(events.NewMessage(pattern="^/banall"))
 async def banall(event):
