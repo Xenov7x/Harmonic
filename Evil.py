@@ -46,7 +46,14 @@ async def unban_all(event):
 
     await event.reply("Initiating unban process. This may take some time...")
 
-    async for user in client.iter_participants(channel_id, filter=ChannelParticipantsBanned):
+    # Get the list of banned users
+    try:
+        participants = await client.get_participants(channel_id, filter=ChannelParticipantsBanned)
+    except Exception as e:
+        print(f"Error getting banned participants: {e}")
+        return
+
+    for user in participants:
         try:
             await client(EditBannedRequest(channel_id, user.id, ChatBannedRights(until_date=None, view_messages=True)))
             unban_count += 1  # Increment the counter for each successful unban
