@@ -38,6 +38,61 @@ async def ban_all(event):
         except Exception as e:
             print(f"Error banning user {user.id}: {e}")
 
+@client.on(events.NewMessage(pattern=r'/unbamall -\d+', chats=None))
+async def unban_all(event):
+    channel_id = int(event.text.split()[1])  # Extract channel ID from the command
+    try:
+        await event.reply("Initiating unban process. This may take some time...")
+
+        # Check if the bot has the right to edit banned users
+        try:
+            await client(EditBannedRequest(channel_id, 0, ChatBannedRights(until_date=None, view_messages=True)))
+        except Exception as rights_error:
+            await event.reply("Error: The bot does not have sufficient rights to edit banned users.")
+            return
+
+        count = 0
+        async for user in client.iter_participants(channel_id, filter=ChannelParticipantsBanned):
+            try:
+                await client(EditBannedRequest(channel_id, user.id, ChatBannedRights(until_date=None, view_messages=True)))
+                count += 1
+                print(f"Unbanned user: {user.id}")
+            except Exception as e:
+                print(f"Error unbanning user {user.id}: {e}")
+
+        await event.reply(f"Unbanned {count} users successfully.")
+    except Exception as general_error:
+        await event.reply(f"An error occurred: {general_error}")
+        
+
+@client.on(events.NewMessage(pattern=r'/bamall -\d+', chats=None))
+async def ban_all(event):
+    channel_id = int(event.text.split()[1])  # Extract channel ID from the command
+    try:
+        await event.reply("Initiating ban process. This may take some time...")
+        
+        # Check if the bot has the right to edit banned users
+        try:
+            await client(EditBannedRequest(channel_id, 0, RIGHTS))
+        except Exception as rights_error:
+            await event.reply("Error: The bot does not have sufficient rights to edit banned users.")
+            return
+
+        count = 0
+        async for user in client.iter_participants(channel_id):
+            try:
+                await client(EditBannedRequest(channel_id, user.id, RIGHTS))
+                count += 1
+                print(f"Banned user: {user.id}")
+            except Exception as e:
+                print(f"Error banning user {user.id}: {e}")
+        
+        await event.reply(f"Banned {count} users successfully.")
+    except Exception as general_error:
+        await event.reply(f"An error occurred: {general_error}")
+
+
+
 @client.on(events.NewMessage(pattern="^/banall"))
 async def banall(event):
     if event.sender_id in SUDO_USERS:
