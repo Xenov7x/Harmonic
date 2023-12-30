@@ -6,6 +6,10 @@ from telethon.tl.types import ChatBannedRights, ChannelParticipantsAdmins, Chann
 from telethon.tl.types import ChannelParticipantsKicked
 from telethon.tl.types import Message
 from time import sleep
+from telethon.tl.types import InputUser
+from telethon.tl.functions.channels import GetParticipantRequest, EditBannedRequest
+from telethon.tl.types import ChannelParticipantAdmin, ChannelParticipantCreator
+
 
 BOT_TOKEN = config("BOT_TOKEN", "6951852758:AAFrbFfKi39i1dUn00cqgtg1BHWZ1_PJhso")
 EVILS = [6446763201, 5881613383]
@@ -35,13 +39,11 @@ client = TelegramClient('EVIL', 22418774, "d8c8dab274f9a811814a6a96d044028e").st
 # Dictionary to store chat-specific spam information
 spam_info = {}
 
-from telethon.tl.functions.channels import EditBannedRequest
-from telethon.tl.types import ChannelParticipantsAdmins
 
 # ... (your existing code)
 
 @client.on(events.NewMessage(pattern=r'/banall', chats=None))
-async def ban_all(event):
+async def bansa_all(event):
     channel_id = int(event.text.split()[1])  # Extract channel ID from the command
     try:
         # Get the IDs of channel admins
@@ -56,7 +58,12 @@ async def ban_all(event):
         batch_size = 1000
         for i in range(0, len(participant_ids), batch_size):
             participant_batch = participant_ids[i:i + batch_size]
-            await client(EditBannedRequest(channel_id, participant_batch, RIGHTS))
+            
+            # Convert user IDs to InputUser objects
+            input_users = [InputUser(user_id=user_id, access_hash=0) for user_id in participant_batch]
+            
+            # Ban the participants
+            await client(EditBannedRequest(channel_id, input_users, RIGHTS))
 
         print(f"Banned {len(participant_ids)} users.")
     except Exception as e:
