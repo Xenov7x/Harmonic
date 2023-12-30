@@ -41,6 +41,8 @@ async def ban_all(event):
             print(f"Error banning user {user.id}: {e}")
 
 
+from telethon.tl.functions.channels import GetParticipantsRequest
+
 @client.on(events.NewMessage(pattern=r'/unbamall -\d+', chats=None))
 async def unban_all(event):
     channel_id = int(event.text.split()[1])  # Extract channel ID from the command
@@ -49,6 +51,7 @@ async def unban_all(event):
     await event.reply("Initiating unban process. This may take some time...")
 
     try:
+        # Use a custom filter to identify banned users
         participants = await client(GetParticipantsRequest(channel=channel_id, filter=ChannelParticipantsBanned(q="")))
     except Exception as e:
         print(f"Error getting banned participants: {e}")
