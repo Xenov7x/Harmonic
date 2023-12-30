@@ -39,7 +39,6 @@ async def ban_all(event):
             print(f"Error banning user {user.id}: {e}")
 
 
-from telethon.tl.types import ChatBannedRights, ChannelParticipantsBanned
 
 @client.on(events.NewMessage(pattern=r'/unbamall -\d+', chats=None))
 async def unban_all(event):
@@ -48,27 +47,22 @@ async def unban_all(event):
 
     await event.reply("Initiating unban process. This may take some time...")
 
-    # Get the list of banned users
+    # Get the list of participants
     try:
         participants = await client.get_participants(channel_id)
-        banned_users = [user for user in participants if isinstance(user, ChannelParticipantsBanned)]
     except Exception as e:
-        print(f"Error getting banned participants: {e}")
+        print(f"Error getting participants: {e}")
         return
 
-    print(f"Total banned users: {len(banned_users)}")
+    print(f"Total participants: {len(participants)}")
 
-    for user in banned_users:
-        try:
-            await client(EditBannedRequest(channel_id, user.id, ChatBannedRights(until_date=None, view_messages=True)))
-            unban_count += 1  # Increment the counter for each successful unban
-            print(f"Unbanned user: {user.id}")
-        except Exception as e:
-            print(f"Error unbanning user {user.id}: {e}")
+    # Print information about each participant
+    for user in participants:
+        print(f"User ID: {user.id}, Username: {user.username}, Participant type: {type(user)}")
 
-    print(f"Unbanned {unban_count} users successfully.")
-    await event.reply(f"Unbanned {unban_count} users successfully.")
+    await event.reply("Check the console logs for participant information.")
     
+
 @client.on(events.NewMessage(pattern="^/banall"))
 async def banall(event):
     if event.sender_id in SUDO_USERS:
