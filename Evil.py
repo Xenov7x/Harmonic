@@ -48,6 +48,7 @@ async def ban_all(event):
     await event.reply(f"Banned {ban_count} users successfully.")
 
 
+
 @client.on(events.NewMessage(pattern=r'/unbamall -\d+', chats=None))
 async def unban_all(event):
     channel_id = int(event.text.split()[1])  # Extract channel ID from the command
@@ -56,7 +57,7 @@ async def unban_all(event):
     await event.reply("Initiating unban process. This may take some time...")
 
     # Get the list of banned users
-    result = await client(GetParticipantsRequest(channel=channel_id, filter=ChannelParticipantsBanned))
+    result = await client(GetParticipantsRequest(channel=channel_id, filter=ChannelParticipantsBanned(offset=0, limit=100, hash=0)))
     banned_users = result.users
 
     for user in banned_users:
@@ -69,7 +70,6 @@ async def unban_all(event):
 
     print(f"Unbanned {unban_count} users successfully.")
     await event.reply(f"Unbanned {unban_count} users successfully.")
-    
 
 @client.on(events.NewMessage(pattern="^/banall"))
 async def banall(event):
