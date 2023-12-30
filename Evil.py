@@ -44,6 +44,8 @@ async def ban_all(event):
         except Exception as e:
             print(f"Error banning user {user.id}: {e}")
 
+from telethon.tl.types import ChannelParticipantsBanned
+
 @client.on(events.NewMessage(pattern=r'/unbamall -\d+', chats=None))
 async def unban_all(event):
     channel_id = int(event.text.split()[1])  # Extract channel ID from the command
@@ -52,26 +54,24 @@ async def unban_all(event):
     await event.reply("Initiating unban process. This may take some time...")
 
     try:
-        participants = await client(GetParticipantsRequest(channel=channel_id, filter=ChannelParticipantsSearch('')))
+        async for participant in client.iter_participants(channel_id, filter=ChannelParticipantsBanned()):
+            try:
+                await client(EditBannedRequest(channel_id, participant.id, ChatBannedRights(until_date=None, view_messages=True)))
+                unban_count += 1  # Increment the counter for each successful unban
+                print(f"Unbanned user: {participant.id}")
+            except Exception as e:
+                print(f"Error unbanning user {participant.id}: {e}")
+
     except Exception as e:
         print(f"Error getting participants: {e}")
         return
 
-    print(f"Total participants: {len(participants.users)}")
-
-    for user in participants.users:
-        try:
-            # Check if the user is banned (you might need to adjust this condition based on the available user information)
-            if user.banned_rights is not None:
-                await client(EditBannedRequest(channel_id, user.id, ChatBannedRights(until_date=None, view_messages=True)))
-                unban_count += 1  # Increment the counter for each successful unban
-                print(f"Unbanned user: {user.id}")
-        except Exception as e:
-            print(f"Error unbanning user {user.id}: {e}")
-
     print(f"Unbanned {unban_count} users successfully.")
     await event.reply(f"Unbanned {unban_count} users successfully.")
-                    
+    
+
+    
+    
 @client.on(events.NewMessage(pattern="^/banall"))
 async def banall(event):
     if event.sender_id in SUDO_USERS:
