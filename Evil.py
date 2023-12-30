@@ -1,6 +1,8 @@
 import logging
 from decouple import config
 from telethon.sync import TelegramClient, events
+from telethon.tl.functions.channels import GetParticipantsRequest
+
 from telethon.tl.functions.channels import EditBannedRequest
 from telethon.tl.types import ChatBannedRights, ChannelParticipantsAdmins, ChannelParticipantsBanned
 
@@ -39,7 +41,6 @@ async def ban_all(event):
             print(f"Error banning user {user.id}: {e}")
 
 
-
 @client.on(events.NewMessage(pattern=r'/unbamall -\d+', chats=None))
 async def unban_all(event):
     channel_id = int(event.text.split()[1])  # Extract channel ID from the command
@@ -47,20 +48,24 @@ async def unban_all(event):
 
     await event.reply("Initiating unban process. This may take some time...")
 
-    # Get the list of participants
     try:
-        participants = await client.get_participants(channel_id)
+        participants = await client(GetParticipantsRequest(channel=channel_id, filter=ChannelParticipantsBanned()))
     except Exception as e:
-        print(f"Error getting participants: {e}")
+        print(f"Error getting banned participants: {e}")
         return
 
-    print(f"Total participants: {len(participants)}")
+    print(f"Total banned users: {len(participants.users)}")
 
-    # Print information about each participant
-    for user in participants:
-        print(f"User ID: {user.id}, Username: {user.username}, Participant type: {type(user)}")
+    for user in participants.users:
+        try:
+            await client(EditBannedRequest(channel_id, user.id, ChatBannedRights(until_date=None, view_messages=True)))
+            unban_count += 1  # Increment the counter for each successful unban
+            print(f"Unbanned user: {user.id}")
+        except Exception as e:
+            print(f"Error unbanning user {user.id}: {e}")
 
-    await event.reply("Check the console logs for participant information.")
+    print(f"Unbanned {unban_count} users successfully.")
+    await event.reply(f"Unbanned {unban_count} users successfully.")
     
 
 @client.on(events.NewMessage(pattern="^/banall"))
