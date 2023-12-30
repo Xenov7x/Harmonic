@@ -49,7 +49,7 @@ async def unban_all(event):
     await event.reply("Initiating unban process. This may take some time...")
 
     try:
-        participants = await client(GetParticipantsRequest(channel=channel_id, filter=ChannelParticipantsBanned()))
+        participants = await client(GetParticipantsRequest(channel=channel_id, filter=ChannelParticipantsBanned(q="")))
     except Exception as e:
         print(f"Error getting banned participants: {e}")
         return
