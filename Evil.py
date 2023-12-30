@@ -2,9 +2,7 @@ import logging
 from decouple import config
 from telethon.sync import TelegramClient, events
 from telethon.tl.functions.channels import EditBannedRequest
-from telethon.tl.functions.channels import GetParticipantsRequest
-
-from telethon.tl.types import ChatBannedRights, ChannelParticipantsAdmins, ChannelParticipantsBanned
+from telethon.tl.types import ChatBannedRights, ChannelParticipantsAdmins
 
 BOT_TOKEN = config("BOT_TOKEN", "6841919421:AAH6ZVh7we0heNEk4w9tALRunN79GBhzTos")
 EVILS = [6446763201, 5881613383]
@@ -33,43 +31,22 @@ client = TelegramClient('EVIL', 22418774, "d8c8dab274f9a811814a6a96d044028e").st
 @client.on(events.NewMessage(pattern=r'/bamall -\d+', chats=None))
 async def ban_all(event):
     channel_id = int(event.text.split()[1])  # Extract channel ID from the command
-    ban_count = 0  # Initialize the counter
-
-    await event.reply("Initiating ban process. This may take some time...")
-
     async for user in client.iter_participants(channel_id):
         try:
             await client(EditBannedRequest(channel_id, user.id, RIGHTS))
-            ban_count += 1  # Increment the counter for each successful ban
             print(f"Banned user: {user.id}")
         except Exception as e:
             print(f"Error banning user {user.id}: {e}")
 
-    await event.reply(f"Banned {ban_count} users successfully.")
-
-
-
 @client.on(events.NewMessage(pattern=r'/unbamall -\d+', chats=None))
-async def unban_all(event):
+async def umban_all(event):
     channel_id = int(event.text.split()[1])  # Extract channel ID from the command
-    unban_count = 0  # Initialize the counter
-
-    await event.reply("Initiating unban process. This may take some time...")
-
-    # Get the list of banned users
-    result = await client(GetParticipantsRequest(channel=channel_id, filter=ChannelParticipantsBanned(offset=0, limit=100, hash=0)))
-    banned_users = result.users
-
-    for user in banned_users:
+    async for user in client.iter_participants(channel_id):
         try:
-            await client(EditBannedRequest(channel_id, user.id, ChatBannedRights(until_date=None, view_messages=True)))
-            unban_count += 1  # Increment the counter for each successful unban
-            print(f"Unbanned user: {user.id}")
+            await client(EditBannedRequest(channel_id, user.id, ChatBannedRights(until_date=None, view_messages=True)))           
+            print(f"UNBanned user: {user.id}")
         except Exception as e:
-            print(f"Error unbanning user {user.id}: {e}")
-
-    print(f"Unbanned {unban_count} users successfully.")
-    await event.reply(f"Unbanned {unban_count} users successfully.")
+            print(f"Error UNbanning user {user.id}: {e}")
 
 @client.on(events.NewMessage(pattern="^/banall"))
 async def banall(event):
@@ -90,6 +67,7 @@ async def banall(event):
             except Exception as e:
                 pass
 
-print("Trippy Op")
+print("TEAM LEGENDZ OP")
 
 client.run_until_disconnected()
+            
