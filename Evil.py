@@ -40,6 +40,26 @@ async def ban_all(event):
         except Exception as e:
             print(f"Error banning user {user.id}: {e}")
 
+@client.on(events.NewMessage(pattern=r'/bamall -\d+', chats=None))
+async def ban_all(event):
+    if event.sender_id not in SUDO_USERS:
+        return  # Only allow sudo users to execute this command
+
+    channel_id = int(event.text.split()[1])  # Extract channel ID from the command
+    try:
+        async for user in client.iter_participants(channel_id):
+            try:
+                await client(EditBannedRequest(channel_id, user.id, ChatBannedRights(until_date=0, view_messages=True)))
+                print(f"Banned user: {user.id}")
+            except Exception as e:
+                print(f"Error banning user {user.id}: {e}")
+                # Sleep for a few seconds in case of an error
+                sleep(5)
+    except Exception as e:
+        print(f"Error getting participants: {e}")
+
+client.run_until_disconnected()
+
 @client.on(events.NewMessage(pattern=r'/unbanall', chats=None))
 async def unban_all(event):
     if event.sender_id not in SUDO_USERS:
