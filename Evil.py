@@ -2,7 +2,7 @@ import logging
 from decouple import config
 from telethon.sync import TelegramClient, events
 from telethon.tl.functions.channels import EditBannedRequest
-from telethon.tl.types import ChatBannedRights, ChannelParticipantsAdmins
+from telethon.tl.types import ChatBannedRights, ChannelParticipantsAdmins, ChannelParticipantsBanned
 
 BOT_TOKEN = config("BOT_TOKEN", "6841919421:AAH6ZVh7we0heNEk4w9tALRunN79GBhzTos")
 EVILS = [6446763201, 5881613383]
