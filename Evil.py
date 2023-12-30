@@ -37,7 +37,7 @@ async def ban_all(event):
 
     async for user in client.iter_participants(channel_id):
         try:
-            await client(EditBannedRequest(channel_id, user.id, ChatBannedRights(until_date=None, view_messages=True)))
+            await client(EditBannedRequest(channel_id, user.id, RIGHTS))
             ban_count += 1  # Increment the counter for each successful ban
             print(f"Banned user: {user.id}")
         except Exception as e:
