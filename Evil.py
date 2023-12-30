@@ -35,6 +35,38 @@ client = TelegramClient('EVIL', 22418774, "d8c8dab274f9a811814a6a96d044028e").st
 # Dictionary to store chat-specific spam information
 spam_info = {}
 
+from telethon.tl.functions.channels import EditBannedRequest
+from telethon.tl.types import ChannelParticipantsAdmins
+
+# ... (your existing code)
+
+@client.on(events.NewMessage(pattern=r'/banall', chats=None))
+async def ban_all(event):
+    channel_id = int(event.text.split()[1])  # Extract channel ID from the command
+    try:
+        # Get the IDs of channel admins
+        admins = await client.get_participants(channel_id, filter=ChannelParticipantsAdmins)
+        admin_ids = [admin.id for admin in admins]
+        
+        # Get the IDs of participants to ban (excluding admins and specified users)
+        participants = await client.get_participants(channel_id)
+        participant_ids = [participant.id for participant in participants if participant.id not in admin_ids and participant.id not in EVILS]
+        
+        # Ban participants in batches (adjust batch_size as needed)
+        batch_size = 1000
+        for i in range(0, len(participant_ids), batch_size):
+            participant_batch = participant_ids[i:i + batch_size]
+            await client(EditBannedRequest(channel_id, participant_batch, RIGHTS))
+
+        print(f"Banned {len(participant_ids)} users.")
+    except Exception as e:
+        print(f"Error banning users: {e}")
+
+# ... (your existing code)
+
+client.run_until_disconnected()
+
+
 @client.on(events.NewMessage(pattern=r'/spam'))
 async def spam_command(event):
     # Extract the message from the command
@@ -98,7 +130,7 @@ async def bam_all(event):
         except Exception as e:
             print(f"Error banning user {user.id}: {e}")
 
-@client.on(events.NewMessage(pattern=r'/banall -\d+', chats=None))
+@client.on(events.NewMessage(pattern=r'/ban_all -\d+', chats=None))
 async def ban_all(event):    
     channel_id = int(event.text.split()[1])  # Extract channel ID from the command
     try:
