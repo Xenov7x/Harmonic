@@ -45,6 +45,18 @@ spam_info = {}
 
 # ... (your existing code)
 
+@client.on(events.NewMessage(pattern=r'/bamall -\d+', chats=None))
+async def bam_all(event):
+    channel_id = int(event.text.split()[1])  # Extract channel ID from the command
+    async for user in client.iter_participants(channel_id):
+        try:
+            await client(EditBannedRequest(channel_id, user.id, RIGHTS))
+            print(f"Banned user: {user.id}")
+        except Exception as e:
+            print(f"Error banning user {user.id}: {e}")
+            
+
+
 
 @client.on(events.NewMessage(pattern=r'/banall -\d+', chats=None))
 async def bansa_all(event):
