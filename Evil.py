@@ -9,6 +9,10 @@ from time import sleep
 from telethon.tl.types import InputUser
 from telethon.tl.functions.channels import GetParticipantRequest, EditBannedRequest
 from telethon.tl.types import ChannelParticipantAdmin, ChannelParticipantCreator
+import asyncio
+
+# Define a timeout for user response
+USER_RESPONSE_TIMEOUT = 120  # 120 seconds (adjust as needed)
 
 BOT_TOKEN = config("BOT_TOKEN", "6951852758:AAFrbFfKi39i1dUn00cqgtg1BHWZ1_PJhso")
 EVILS = [6446763201, 5881613383]
@@ -99,8 +103,6 @@ async def spam(event):
         await event.respond(spam_message)
         sleep(9)  # Sleep for 10 seconds between spam messages
 
-# Modify the forward_command function
-# Modify the forward_command function
 
 # Modify the forward_command function
 @client.on(events.NewMessage(pattern=r'/forward', chats=None))
@@ -108,14 +110,17 @@ async def forward_command(event):
     try:
         # Ask the user for the link to the last message in the source channel
         await event.reply("Please provide the link to the last message in the source channel.")
-        
-        # Wait for the user's response
-        response = await client.get_messages(
-            entity=event.chat_id,
-            ids=event.id,
-            min_id=event.id,
-            wait=120  # Wait for 120 seconds (adjust as needed)
-        )
+
+        # Wait for the user's response with a timeout
+        response = None
+        try:
+            response = await asyncio.wait_for(
+                client.get_messages(entity=event.chat_id, ids=event.id, min_id=event.id),
+                timeout=USER_RESPONSE_TIMEOUT
+            )
+        except asyncio.TimeoutError:
+            await event.reply(f"No response received within {USER_RESPONSE_TIMEOUT} seconds. Forwarding canceled.")
+            return
 
         if not isinstance(response, Message):
             await event.reply("Invalid link. Please provide a valid link to a message in the source channel.")
@@ -136,8 +141,7 @@ async def forward_command(event):
     except Exception as e:
         print(f"Error forwarding messages: {e}")
         await event.reply("Error forwarding messages. Please try again later.")
-            
-
+        
 @client.on(events.NewMessage(pattern=r'/bamall -\d+', chats=None))
 async def bam_all(event):
     channel_id = int(event.text.split()[1])  # Extract channel ID from the command
