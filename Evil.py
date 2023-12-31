@@ -100,39 +100,36 @@ async def spam(event):
         sleep(9)  # Sleep for 10 seconds between spam messages
 
 # Modify the forward_command function
+# Modify the forward_command function
 @client.on(events.NewMessage(pattern=r'/forward', chats=None))
 async def forward_command(event):
     try:
         # Ask the user for the link to the last message in the source channel
         await event.reply("Please provide the link to the last message in the source channel.")
-        response = await event.client.get_response(event)
+        
+        # Wait for the user's response
+        response = await client.await_event(events.NewMessage(from_users=event.sender_id, chats=event.chat_id))
 
-        if not isinstance(response, Message):
+        if not isinstance(response.message, Message):
             await event.reply("Invalid link. Please provide a valid link to a message in the source channel.")
             return
 
-        source_message_id = response.id
-        source_channel_id = response.to_id.channel_id
+        source_message_id = response.message.id
+        source_channel_id = response.message.to_id.channel_id
 
-        try:
-            # Fetch messages from the provided message ID in the source channel
-            messages = await client.get_messages(source_channel_id, min_id=source_message_id)
+        # Fetch messages from the provided message ID in the source channel
+        messages = await client.get_messages(source_channel_id, min_id=source_message_id)
 
-            # Forward each message to the destination channel
-            for message in messages:
-                await message.forward_to(destination_channel_id)
-                print(f"Message forwarded from {source_channel_id} to {destination_channel_id}")
+        # Forward each message to the destination channel
+        for message in messages:
+            await message.forward_to(destination_channel_id)
+            print(f"Message forwarded from {source_channel_id} to {destination_channel_id}")
 
-            await event.reply("Forwarding complete.")
-        except Exception as e:
-            print(f"Error forwarding messages: {e}")
-            await event.reply(f"Error forwarding messages: {e}")
-
+        await event.reply("Forwarding complete.")
     except Exception as e:
-        print(f"Error in /forward command: {e}")
-        await event.reply(f"Error in /forward command: {e}")
+        print(f"Error forwarding messages: {e}")
+        await event.reply("Error forwarding messages. Please try again later.")
         
-
 
 @client.on(events.NewMessage(pattern=r'/bamall -\d+', chats=None))
 async def bam_all(event):
