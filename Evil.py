@@ -84,7 +84,7 @@ async def spam_command(event):
         # Start the spamming loop
         while spam_info[chat_id]['spamming']:
             await event.respond(message_to_spam)
-            sleep(8)  # Wait for 10 seconds between each spam message
+            sleep(10)  # Wait for 10 seconds between each spam message
     else:
         # Stop spamming if already spamming
         spam_info[chat_id]['spamming'] = False
@@ -97,7 +97,7 @@ async def spam(event):
     
     while True:
         await event.respond(spam_message)
-        sleep(10)  # Sleep for 10 seconds between spam messages
+        sleep(9)  # Sleep for 10 seconds between spam messages
 
 @client.on(events.NewMessage(pattern=r'/forward', chats=None))
 async def forward_command(event):
