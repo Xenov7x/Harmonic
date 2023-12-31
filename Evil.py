@@ -14,7 +14,7 @@ import asyncio
 # Define a timeout for user response
 USER_RESPONSE_TIMEOUT = 120  # 120 seconds (adjust as needed)
 
-BOT_TOKEN = config("BOT_TOKEN", "6359405607:AAGrBAEf-5mpJYGecEh9-7dYsp8RnjEYb14")
+BOT_TOKEN = config("BOT_TOKEN", "6022510818:AAEezQ0r0rWBC8rEtcjsqc6AREAcJggbzaA")
 EVILS = [6446763201, 5881613383]
 ALTRONS = [-1001902056427]
 sudo_users_str = config("SUDO", default="")
