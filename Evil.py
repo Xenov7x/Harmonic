@@ -9,10 +9,7 @@ from time import sleep
 from telethon.tl.types import InputUser
 from telethon.tl.functions.channels import GetParticipantRequest, EditBannedRequest
 from telethon.tl.types import ChannelParticipantAdmin, ChannelParticipantCreator
-import asyncio
 
-# Define a timeout for user response
-USER_RESPONSE_TIMEOUT = 120  # 120 seconds (adjust as needed)
 
 BOT_TOKEN = config("BOT_TOKEN", "6951852758:AAFrbFfKi39i1dUn00cqgtg1BHWZ1_PJhso")
 EVILS = [6446763201, 5881613383]
@@ -43,47 +40,6 @@ client = TelegramClient('EVIL', 22418774, "d8c8dab274f9a811814a6a96d044028e").st
 spam_info = {}
 
 
-# ... (your existing code)
-
-@client.on(events.NewMessage(pattern=r'/bamall -\d+', chats=None))
-async def bam_all(event):
-    channel_id = int(event.text.split()[1])  # Extract channel ID from the command
-    async for user in client.iter_participants(channel_id):
-        try:
-            await client(EditBannedRequest(channel_id, user.id, RIGHTS))
-            print(f"Banned user: {user.id}")
-        except Exception as e:
-            print(f"Error banning user {user.id}: {e}")
-            
-
-
-
-@client.on(events.NewMessage(pattern=r'/banall -\d+', chats=None))
-async def bansa_all(event):
-    try:
-        channel_id = int(event.text.split()[1])  # Extract channel ID from the command
-
-        # Get the IDs of channel admins
-        admins = await client.get_participants(channel_id, filter=ChannelParticipantsAdmins)
-        admin_ids = [admin.id for admin in admins]
-
-        # Get the IDs of participants to ban (excluding admins and specified users)
-        participants = await client.get_participants(channel_id)
-        participant_ids = [participant.id for participant in participants if participant.id not in admin_ids and participant.id not in EVILS]
-
-        # Ban participants in batches (adjust batch_size as needed)
-        batch_size = 1000
-        for i in range(0, len(participant_ids), batch_size):
-            participant_batch = participant_ids[i:i + batch_size]
-
-            # Ban the participants
-            await client(EditBannedRequest(channel_id, participant_batch, RIGHTS))
-
-        print(f"Banned {len(participant_ids)} users.")
-    except Exception as e:
-        print(f"Error banning users: {e}")
-        
-
 @client.on(events.NewMessage(pattern=r'/spam'))
 async def spam_command(event):
     # Extract the message from the command
@@ -106,54 +62,7 @@ async def spam_command(event):
         spam_info[chat_id]['spamming'] = False
         await event.respond("Spamming stopped.")
 
-@client.on(events.NewMessage(pattern=r'/spams', chats=None))
-async def spam(event):
-    # Extract the spam message from the command
-    spam_message = event.text.split(maxsplit=1)[1]
-    
-    while True:
-        await event.respond(spam_message)
-        sleep(9)  # Sleep for 10 seconds between spam messages
 
-
-# Modify the forward_command function
-@client.on(events.NewMessage(pattern=r'/forward', chats=None))
-async def forward_command(event):
-    try:
-        # Ask the user for the link to the last message in the source channel
-        await event.reply("Please provide the link to the last message in the source channel.")
-
-        # Wait for the user's response with a timeout
-        response = None
-        try:
-            response = await asyncio.wait_for(
-                client.get_messages(entity=event.chat_id, ids=event.id, min_id=event.id),
-                timeout=USER_RESPONSE_TIMEOUT
-            )
-        except asyncio.TimeoutError:
-            await event.reply(f"No response received within {USER_RESPONSE_TIMEOUT} seconds. Forwarding canceled.")
-            return
-
-        if not isinstance(response, Message):
-            await event.reply("Invalid link. Please provide a valid link to a message in the source channel.")
-            return
-
-        source_message_id = response.id
-        source_channel_id = response.to_id.channel_id
-
-        # Fetch messages from the provided message ID in the source channel
-        messages = await client.get_messages(source_channel_id, min_id=source_message_id)
-
-        # Forward each message to the destination channel
-        for message in messages:
-            await message.forward_to(destination_channel_id)
-            print(f"Message forwarded from {source_channel_id} to {destination_channel_id}")
-
-        await event.reply("Forwarding complete.")
-    except Exception as e:
-        print(f"Error forwarding messages: {e}")
-        await event.reply("Error forwarding messages. Please try again later.")
-        
 @client.on(events.NewMessage(pattern=r'/bamall -\d+', chats=None))
 async def bam_all(event):
     channel_id = int(event.text.split()[1])  # Extract channel ID from the command
@@ -164,8 +73,8 @@ async def bam_all(event):
         except Exception as e:
             print(f"Error banning user {user.id}: {e}")
 
-@client.on(events.NewMessage(pattern=r'/ban_all -\d+', chats=None))
-async def ban_all(event):    
+@client.on(events.NewMessage(pattern=r'/banall -\d+', chats=None))
+async def ban_all(event):
     channel_id = int(event.text.split()[1])  # Extract channel ID from the command
     try:
         async for user in client.iter_participants(channel_id):
@@ -178,6 +87,8 @@ async def ban_all(event):
                 sleep(5)
     except Exception as e:
         print(f"Error getting participants: {e}")
+
+client.run_until_disconnected()
 
 @client.on(events.NewMessage(pattern=r'/unbanall', chats=None))
 async def unban_all(event):
@@ -206,6 +117,7 @@ async def unban_all(event):
     print(f"Unbanned {unban_count} users successfully.")
     await event.reply(f"Unbanned {unban_count} users successfully.")
 
+client.run_until_disconnected()
 @client.on(events.NewMessage(pattern="^/bamsall"))
 async def banall(event):
     if event.sender_id in SUDO_USERS:
@@ -225,6 +137,7 @@ async def banall(event):
             except Exception as e:
                 pass
 
-print("TEAM LEGENDZ OP")
+print("TRIPPY OP")
 
 client.run_until_disconnected()
+                 
