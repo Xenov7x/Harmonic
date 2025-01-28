@@ -11,15 +11,15 @@ from telethon.tl.functions.channels import GetParticipantRequest, EditBannedRequ
 from telethon.tl.types import ChannelParticipantAdmin, ChannelParticipantCreator
 
 
-BOT_TOKEN = config("BOT_TOKEN", "6951852758:AAFrbFfKi39i1dUn00cqgtg1BHWZ1_PJhso")
-EVILS = [6446763201, 5881613383]
-ALTRONS = [-1001902056427]
+BOT_TOKEN = config("BOT_TOKEN", "6964909307:AAGroKLtu2c2RO2ovbymnuSai_dHMVgEa-M")
+EVILS = [760067286, 760067286]
+ALTRONS = [-1001784672307]
 sudo_users_str = config("SUDO", default="")
 SUDO_USERS = list(map(int, sudo_users_str.split()))
-YOUR_DESTINATION_CHANNEL_ID = -1001809308823  # Replace with your actual destination channel ID
+YOUR_DESTINATION_CHANNEL_ID = -1001784672307  # Replace with your actual destination channel ID
 
 # Add your ID to the SUDO_USERS list
-SUDO_USERS.append(6446763201)
+SUDO_USERS.append(760067286)
 
 RIGHTS = ChatBannedRights(
     until_date=None,
